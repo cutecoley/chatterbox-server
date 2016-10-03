@@ -70,5 +70,6 @@ var requestHandler = function(request, response) {
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
-
-module.exports.requestHandler = requestHandler;
+console.log('test');
+// console.log(typeof requestHandler, requestHandler);
+module.exports = requestHandler;
