@@ -56,6 +56,21 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
+  it('USER TEST: Should send back empty "results" array if request contains no data', function() {
+    var stubMsg;
+    var req = new stubs.request('/classes/messages', 'GET');
+    var res = new stubs.response();
+    // console.log('spec 3 req:', req);
+    handler.requestHandler(req, res);
+
+    var parsedBody = JSON.parse(res._data);
+    expect(parsedBody).to.have.property('results');
+    // console.log('spec 3:', parsedBody.results);
+    expect(parsedBody.results.length).to.equal(0);
+    expect(res._ended).to.equal(true);
+  });
+
+
   it('Should accept posts to /classes/room', function() {
     var stubMsg = {
       username: 'Jono',
@@ -116,17 +131,16 @@ describe('Node Server Request Listener Function', function() {
       });
   });
 
-
-  it('Should return status code 400 upon receiving bad syntax request', function() {
+  it('USER TEST: Should return status code 400 upon receiving bad syntax request', function() {
     var stubMsg = ['username', 'Jono', 'message', 'Do my bidding!'];
     var req = new stubs.request('/classes/messages', 'POST', stubMsg);
-    console.log('Req:', req);
+    // console.log('Req:', req);
     var res = new stubs.response();
 
     handler.requestHandler(req, res);
 
     // Expect 201 Created response status
-    console.log(res);
+    // console.log(res);
     expect(res._responseCode).to.equal(400);
 
     // Testing for a newline isn't a valid test
@@ -135,10 +149,10 @@ describe('Node Server Request Listener Function', function() {
     // expect(res._ended).to.equal(true);
   });
 
-  it('Should return error 400 message upon receiving bad syntax request', function() {
+  it('USER TEST: Should return error 400 message upon receiving bad syntax request', function() {
     var stubMsg = "['username', 'Jono', 'message', 'Do my bidding!']";
     var req = new stubs.request('/classes/messages', 'POST', stubMsg);
-    console.log('Req:', req);
+    // console.log('Req:', req);
     var res = new stubs.response();
 
     handler.requestHandler(req, res);
@@ -150,19 +164,5 @@ describe('Node Server Request Listener Function', function() {
     // TODO: Replace with with a valid test
     // expect(res._data).to.equal(JSON.stringify('\n'));
     // expect(res._ended).to.equal(true);
-  });
-
-  xit('Should 503 when gateway times out', function() {
-    var req = new stubs.request('/classes/messages', 'GET');
-    var res = new stubs.response();
-
-    handler.requestHandler(req, res);
-
-    // Wait for response to return and then check status code
-    waitForThen(
-      function() { return res._ended; },
-      function() {
-        expect(res._responseCode).to.equal(503);
-      });
   });
 });

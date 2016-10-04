@@ -52,7 +52,7 @@ var requestHandler = function(request, response) {
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
   if (request.url !== '/classes/messages') {
-    console.log('404!');
+    // console.log('404!');
     statusCode = 404;
     response.writeHead(statusCode, headers);
     responded = true;
@@ -64,16 +64,27 @@ var requestHandler = function(request, response) {
     response.end('400 error: Bad syntax request');
 
   } else if (request.method === 'POST') {
-    console.log('POST 1; URL:', request.url);
+    // console.log('POST 1; URL:', request.url);
     statusCode = 201;
     var body = '';
     request.on('data', function (data) {
       body += data;
-      console.log("Partial body: 2 " + body, 'Typeof body:', typeof body);
+      // console.log("Partial body: 2 " + body, 'Typeof body:', typeof body);
     });
     request.on('end', function () {
-      console.log("Body: 3 " + body);
-      obj.results = [JSON.parse(body)];
+      // console.log('testttt')
+      // console.log("Body: 3 " + body);
+
+      var err = false;
+
+      try { JSON.parse(body); } catch (e) { err = true; }
+
+      if (!err) {
+        obj.results = [JSON.parse(body)];
+      } else {
+        obj.results = [body];
+      }
+      
       // response.writeHead(statusCode, headers);
       // response.end(JSON.stringify([body]));
     });
@@ -82,7 +93,7 @@ var requestHandler = function(request, response) {
     // obj.results = [body];
     // var obj = {};
     // body.results = [1,2,3,6,7,8];
-    console.log('Post received!!! Outgoing body: 4', body.results);
+    // console.log('Post received!!! Outgoing body: 4', body.results);
     responded = true;
     response.end(JSON.stringify(body));
 
@@ -105,7 +116,7 @@ var requestHandler = function(request, response) {
     // console.log('Get response.end:', obj);
     // response.end(JSON.stringify(obj));
 
-    console.log('OBJ RESULTS!');
+    // console.log('OBJ RESULTS!');
     responded = true;
     if (obj.results.length > 0) {
       response.end(JSON.stringify(obj)); // -> "messages" -> [{username: blah}]
@@ -117,13 +128,6 @@ var requestHandler = function(request, response) {
     //I.e. response.end(JSON.stringify(obj)); //obj.results = [{username: 1212}]
 
   } 
-
-  setInterval(function() {
-    if (responded === false) {
-      statusCode = 503;
-      response.end('Error 503: Gateway timed out!');
-    }
-  }, 1000);
 
 
 };
