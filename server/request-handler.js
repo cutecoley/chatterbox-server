@@ -43,7 +43,7 @@ var requestHandler = function(request, response) {
   // console.log('Response status code: ' + response.statusCode + ' and Response headers: ' + response.headers);
 
   // The outgoing status.
-  var statusCode = 200;
+  var statusCode;
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
 
@@ -51,11 +51,14 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-
-
-  if (request.method === 'POST') {
-    console.log('POST 1');
-    var statusCode = 201;
+  if (request.url !== '/classes/messages') {
+    console.log('404!');
+    statusCode = 404;
+    response.writeHead(statusCode, headers);
+    response.end('404 error: URL not found');
+  } else if (request.method === 'POST') {
+    console.log('POST 1; URL:', request.url);
+    statusCode = 201;
     var body = '';
     request.on('data', function (data) {
       body += data;
@@ -75,8 +78,9 @@ var requestHandler = function(request, response) {
     console.log('Post received!!! Outgoing body: 4', body.results);
     response.end(JSON.stringify(body));
 
-  } else {
-    console.log("GET 5 ");
+  } else if (request.method === 'GET') {
+    statusCode = 200;
+    console.log("GET 5; URL:", request.url);
     headers['Content-Type'] = 'text/plain';
     // .writeHead() writes to the request line and headers of the response,
     // which includes the status and all headers.
