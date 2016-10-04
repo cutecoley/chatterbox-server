@@ -22,8 +22,34 @@ var ip = '127.0.0.1';
 // incoming requests.
 //
 // After creating the server, we will tell it to listen on the given port and IP. */
-console.log(typeof requestHandler);
+// console.log('12345');
+// console.log(typeof requestHandler);
 var server = http.createServer(requestHandler);
+
+
+
+
+// var server = http.createServer(requestHandler(request, response));
+
+
+
+
+// var server = http.createServer(function (request, response) {
+//   response.writeHead(200, {'Content-Type': 'text/plain'});
+//   response.end('Hello world\n');
+// });
+
+
+// var server = http.createServer(requestHandler({
+//   method: function() { 
+//     console.log('LOG ME!'); 
+//   }, 
+//   url: 'https://api.parse.com/1/classes/messages'
+// }, {
+//   writeHead: function() {},
+//   end: function() {}
+// }));
+
 console.log('Listening on http://' + ip + ':' + port);
 server.listen(port, ip);
 
@@ -39,4 +65,3 @@ server.listen(port, ip);
 // server.listen() will continue running as long as there is the
 // possibility of serving more requests. To stop your server, hit
 // Ctrl-C on the command line.
-
