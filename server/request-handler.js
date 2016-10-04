@@ -46,7 +46,7 @@ var requestHandler = function(request, response) {
   var statusCode;
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
-
+  var responded = false;
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
@@ -55,7 +55,14 @@ var requestHandler = function(request, response) {
     console.log('404!');
     statusCode = 404;
     response.writeHead(statusCode, headers);
+    responded = true;
     response.end('404 error: URL not found');
+  } else if (Array.isArray(request._postData) || typeof request._postData === 'string' || typeof request._postData == 'number' ) {
+    statusCode = 400;
+    response.writeHead(statusCode, headers);
+    responded = true;
+    response.end('400 error: Bad syntax request');
+
   } else if (request.method === 'POST') {
     console.log('POST 1; URL:', request.url);
     statusCode = 201;
@@ -76,11 +83,11 @@ var requestHandler = function(request, response) {
     // var obj = {};
     // body.results = [1,2,3,6,7,8];
     console.log('Post received!!! Outgoing body: 4', body.results);
+    responded = true;
     response.end(JSON.stringify(body));
 
   } else if (request.method === 'GET') {
     statusCode = 200;
-    console.log("GET 5; URL:", request.url);
     headers['Content-Type'] = 'text/plain';
     // .writeHead() writes to the request line and headers of the response,
     // which includes the status and all headers.
@@ -99,6 +106,7 @@ var requestHandler = function(request, response) {
     // response.end(JSON.stringify(obj));
 
     console.log('OBJ RESULTS!');
+    responded = true;
     if (obj.results.length > 0) {
       response.end(JSON.stringify(obj)); // -> "messages" -> [{username: blah}]
     } else {
@@ -108,7 +116,14 @@ var requestHandler = function(request, response) {
     //Test 6: obj.results = [{username: 1212}] WORKS!
     //I.e. response.end(JSON.stringify(obj)); //obj.results = [{username: 1212}]
 
-  }
+  } 
+
+  setInterval(function() {
+    if (responded === false) {
+      statusCode = 503;
+      response.end('Error 503: Gateway timed out!');
+    }
+  }, 1000);
 
 
 };
@@ -127,7 +142,7 @@ var requestHandler = function(request, response) {
 // client from this domain by setting up static file serving.
 // console.log('test');
 // console.log(typeof requestHandler, requestHandler);
-module.exports = requestHandler;
+exports.requestHandler = requestHandler;
 
 //////////////////////////////////////////////////////////
 /*
