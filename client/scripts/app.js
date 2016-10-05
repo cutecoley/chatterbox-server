@@ -3,7 +3,8 @@ var app = {
 
   //TODO: The current 'handleUsernameClick' function just toggles the class 'friend'
   //to all messages sent by the user
-  server: 'http://127.0.0.1:3000/',
+  server: 'http://127.0.0.1:3000/classes/messages',
+  url: '/classes/messages',
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -30,9 +31,9 @@ var app = {
     app.fetch(false);
 
     // Poll for new messages
-    setInterval(function() {
-      app.fetch(true);
-    }, 3000);
+    // setInterval(function() {
+    //   app.fetch(true);
+    // }, 10000);
   },
 
   send: function(message) {
@@ -48,6 +49,8 @@ var app = {
         app.$message.val('');
 
         // Trigger a fetch to update the messages, pass true to animate
+        console.log('send data results=', data.results);
+        // app.renderMessages(data.results);
         app.fetch();
       },
       error: function (error) {
@@ -60,12 +63,15 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'GET',
-      data: { order: '-createdAt' },
-      contentType: 'application/json',
+      // data: { order: '-createdAt' },
+      // contentType: 'application/json',
       success: function(data) {
+        data = JSON.parse(data);
+        console.log('fetch success! data type:', typeof data);
         // Don't bother if we have nothing to work with
+        app.renderMessages(data.results);
         if (!data.results || !data.results.length) { return; }
-
+        console.log('In the IF function...');
         // Store messages for caching later
         app.messages = data.results;
 
@@ -85,8 +91,23 @@ var app = {
         }
       },
       error: function(error) {
+        console.log('z', error);
         console.error('chatterbox: Failed to fetch messages', error);
       }
+    });
+  },
+
+  testFetch: function(param) {
+    $.ajax({
+      url: app.server,
+      type: 'GET',
+      success: function(data) {
+        console.log('SUCCESSIFIED!!');
+      },
+      error: function(data) {
+        console.log('Error', data);
+      }
+
     });
   },
 

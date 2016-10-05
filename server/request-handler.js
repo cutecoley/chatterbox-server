@@ -51,7 +51,14 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  if (request.url !== '/classes/messages') {
+  if (request.method === 'OPTIONS' || request.type === 'OPTIONS') {
+    console.log('OPTIONS!');
+    statusCode = 200;
+    //headers = {Allow: 'HEAD,GET,PUT,DELETE,OPTIONS'};
+    response.writeHead(statusCode, headers);
+    responded = true;
+    response.end('200 OK');
+  } else if (request.url !== '/classes/messages') {
     // console.log('404!');
     statusCode = 404;
     response.writeHead(statusCode, headers);
@@ -63,8 +70,8 @@ var requestHandler = function(request, response) {
     responded = true;
     response.end('400 error: Bad syntax request');
 
-  } else if (request.method === 'POST') {
-    // console.log('POST 1; URL:', request.url);
+  } else if (request.method === 'POST' || request.type === 'POST') {
+    console.log('POST 1 method & request:', request.method, request.type);
     statusCode = 201;
     var body = '';
     request.on('data', function (data) {
@@ -76,13 +83,14 @@ var requestHandler = function(request, response) {
       // console.log("Body: 3 " + body);
 
       var err = false;
+      console.log(request.body);
 
       try { JSON.parse(body); } catch (e) { err = true; }
 
       if (!err) {
-        obj.results = [JSON.parse(body)];
+        obj.results.push(JSON.parse(body));
       } else {
-        obj.results = [body];
+        obj.results.push(body);
       }
       
       // response.writeHead(statusCode, headers);
@@ -97,7 +105,8 @@ var requestHandler = function(request, response) {
     responded = true;
     response.end(JSON.stringify(body));
 
-  } else if (request.method === 'GET') {
+  } else if (request.method === 'GET' || request.type === 'GET') {
+    console.log('GET Requested!!!', request.method, request.type);
     statusCode = 200;
     headers['Content-Type'] = 'text/plain';
     // .writeHead() writes to the request line and headers of the response,
@@ -116,7 +125,7 @@ var requestHandler = function(request, response) {
     // console.log('Get response.end:', obj);
     // response.end(JSON.stringify(obj));
 
-    // console.log('OBJ RESULTS!');
+    console.log('OBJ RESULTS!');
     responded = true;
     if (obj.results.length > 0) {
       response.end(JSON.stringify(obj)); // -> "messages" -> [{username: blah}]
